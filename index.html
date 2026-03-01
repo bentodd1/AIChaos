@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chaos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        /* ---- HERO ---- */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ff0055, #aa00ff, #00ffcc, #ff0055);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 4s ease infinite;
+            margin-bottom: 0.5rem;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .tagline {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: #888;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            animation: bob 2s ease-in-out infinite;
+            color: #555;
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: #0a0a0f;
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .glitch::before {
+            animation: glitch-1 2s infinite linear alternate-reverse;
+            clip-path: inset(0 0 80% 0);
+            -webkit-text-fill-color: #ff0055;
+            opacity: 0.8;
+        }
+
+        .glitch::after {
+            animation: glitch-2 3s infinite linear alternate-reverse;
+            clip-path: inset(80% 0 0 0);
+            -webkit-text-fill-color: #00ffcc;
+            opacity: 0.8;
+        }
+
+        @keyframes glitch-1 {
+            0%, 90% { transform: translateX(0); }
+            92% { transform: translateX(-5px); }
+            94% { transform: translateX(5px); }
+            96% { transform: translateX(-3px); }
+            98% { transform: translateX(3px); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 88% { transform: translateX(0); }
+            90% { transform: translateX(4px); }
+            93% { transform: translateX(-4px); }
+            96% { transform: translateX(2px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* ---- SECTIONS ---- */
+        section {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        /* ---- QUOTE BLOCKS ---- */
+        .quote-block {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 6rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .quote-block blockquote {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            line-height: 1.6;
+            color: #ccc;
+            font-style: italic;
+            position: relative;
+        }
+
+        .quote-block blockquote::before {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #ff0055, #aa00ff);
+            margin: 0 auto 2rem;
+        }
+
+        .quote-block blockquote::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #aa00ff, #00ffcc);
+            margin: 2rem auto 0;
+        }
+
+        .quote-block .accent {
+            color: #aa00ff;
+            font-style: normal;
+            font-weight: 700;
+        }
+
+        /* ---- ESSAY SECTION ---- */
+        .essay-section h2 {
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ff0055, #aa00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .essay-section p {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #aaa;
+            margin-bottom: 1.5rem;
+        }
+
+        .essay-section p em {
+            color: #ccc;
+        }
+
+        .read-more {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #aaa;
+            text-decoration: none;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: none;
+        }
+
+        .read-more:hover {
+            border-color: #aa00ff;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(170, 0, 255, 0.2);
+        }
+
+        .essay-expanded {
+            display: none;
+        }
+
+        .essay-expanded.show {
+            display: block;
+        }
+
+        /* ---- VIDEO GALLERY ---- */
+        .video-section {
+            max-width: 1200px;
+        }
+
+        .video-section h2 {
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #00ffcc, #aa00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .video-section .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            letter-spacing: 0.15em;
+            margin-bottom: 2rem;
+        }
+
+        /* ---- MAIN PLAYER ---- */
+        .main-player {
+            margin-bottom: 1.5rem;
+            border: 1px solid #1a1a2e;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .main-player video {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16/9;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.25rem;
+            background: rgba(15, 15, 25, 0.95);
+            border-top: 1px solid #1a1a2e;
+        }
+
+        .player-controls .now-playing {
+            color: #888;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        .player-controls .now-playing span {
+            color: #ccc;
+        }
+
+        .player-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .player-nav button {
+            background: none;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #aaa;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            padding: 0.4rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .player-nav button:hover {
+            border-color: #aa00ff;
+            color: #fff;
+        }
+
+        .playlist-label {
+            color: #555;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .video-card {
+            border: 1px solid #1a1a2e;
+            border-radius: 6px;
+            overflow: hidden;
+            background: rgba(15, 15, 25, 0.8);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .video-card:hover {
+            border-color: #aa00ff;
+            box-shadow: 0 0 25px rgba(170, 0, 255, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .video-card.active {
+            border-color: #aa00ff;
+            box-shadow: 0 0 20px rgba(170, 0, 255, 0.25);
+        }
+
+        .video-card .thumb {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background: #000;
+        }
+
+        .video-card .card-number {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #888;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .video-card.active .card-number {
+            background: rgba(170, 0, 255, 0.7);
+            color: #fff;
+        }
+
+        /* ---- LINKS / FOOTER ---- */
+        .links-section {
+            text-align: center;
+            padding: 6rem 2rem;
+        }
+
+        .links-section h2 {
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            color: #666;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .links a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #ccc;
+            text-decoration: none;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .links a:hover {
+            border-color: #aa00ff;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(170, 0, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .links a svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #333;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+        }
+
+        /* ---- FADE-IN ON SCROLL ---- */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg"></canvas>
+
+    <!-- HERO -->
+    <div class="hero">
+        <h1 class="glitch" data-text="AI Chaos">AI Chaos</h1>
+        <p class="tagline">where entropy meets intelligence</p>
+        <div class="scroll-hint">&#9660; scroll &#9660;</div>
+    </div>
+
+    <!-- QUOTE 1 -->
+    <div class="quote-block fade-in">
+        <blockquote>
+            What if chaos isn't the enemy of life?<br>
+            What if it <span class="accent">is</span> life?
+        </blockquote>
+    </div>
+
+    <!-- ESSAY: THE MIRROR WE BUILT -->
+    <section class="essay-section fade-in">
+        <h2>The Mirror We Built</h2>
+        <p>Artificial intelligence is often described as a breakthrough in machine intelligence. But there's a more honest way to look at it: AI is a mirror. A strange, imperfect, massive mirror held up to the collective output of human thought.</p>
+        <p>These systems are trained on the accumulated written record of our species. Books, conversations, arguments, art, science, lies, and truths &mdash; all of it compressed into something that can speak back to us. When you interact with AI and something in its response unsettles you, or surprises you, or feels uncomfortably accurate, that's not the machine thinking. That's <em>us</em>, reflected back.</p>
+        <div class="essay-expanded" id="mirror-more">
+            <p>The biases, the brilliance, the contradictions &mdash; all of it is already there in what we've collectively produced. AI just reorganizes the mirror so we can see it more clearly.</p>
+            <p>This matters because it means we didn't create an artificial mind. We created an artifact of collective human thought. A distillation. Pierre Teilhard de Chardin spent decades arguing that humanity was building something like this &mdash; a layer of shared thought he called the "noosphere," a thinking envelope wrapping the globe. He didn't predict AI specifically, but the underlying idea maps almost perfectly onto what we've built.</p>
+        </div>
+        <button class="read-more" onclick="toggleSection('mirror-more', this)">+ read more</button>
+    </section>
+
+    <!-- QUOTE 2 -->
+    <div class="quote-block fade-in">
+        <blockquote>
+            The chaos isn't a sign that something went wrong.<br>
+            It's a sign that something is <span class="accent">happening</span>.
+        </blockquote>
+    </div>
+
+    <!-- VIDEO GALLERY -->
+    <section class="video-section fade-in">
+        <h2>Visions</h2>
+        <p class="subtitle">AI-generated chaos in motion</p>
+
+        <!-- Main player -->
+        <div class="main-player">
+            <video id="mainVideo" controls></video>
+            <div class="player-controls">
+                <div class="now-playing">
+                    <span id="nowPlaying">1 / 23</span>
+                </div>
+                <div class="player-nav">
+                    <button onclick="playPrev()">&#9664; prev</button>
+                    <button onclick="playNext()">next &#9654;</button>
+                </div>
+            </div>
+        </div>
+
+        <p class="playlist-label">Playlist</p>
+        <div class="video-grid" id="playlist"></div>
+    </section>
+
+    <!-- QUOTE 3 -->
+    <div class="quote-block fade-in">
+        <blockquote>
+            We aren't fighting entropy.<br>
+            We are the universe's most efficient <span class="accent">engine</span> for it.
+        </blockquote>
+    </div>
+
+    <!-- ESSAY: ORDER & ENTROPY -->
+    <section class="essay-section fade-in">
+        <h2>Order Doesn't Fight Entropy. It Feeds It.</h2>
+        <p>The second law of thermodynamics tells us that energy in a closed system moves toward entropy &mdash; toward disorder, toward dissipation, toward equilibrium. We've always framed this as a slow, inevitable decline. But there's a detail we tend to gloss over: <strong>entropy doesn't just happen on its own. It needs a mechanism.</strong></p>
+        <p>Energy sitting inert doesn't dissipate. It needs <em>organization</em> &mdash; structure, complexity, a pathway &mdash; before it can release. A star organizes hydrogen through gravitational pressure into a dense, burning core. That organization is the <em>prerequisite</em> for a supernova, one of the most entropic events in the universe. The order didn't resist the chaos. It <em>made the chaos possible</em>.</p>
+        <div class="essay-expanded" id="entropy-more">
+            <p>The same logic applies everywhere. A dam organizes water. Release the dam, and you get a flood &mdash; massive, fast, entropic energy dissipation. The organization was the loading mechanism. Civilization does the same thing on a civilizational scale.</p>
+            <p>The physicist Ilya Prigogine spent decades studying this. His central insight was that complex systems far from equilibrium don't just maintain themselves &mdash; they actively <em>accelerate</em> entropy. They are not fighting the second law. They are its most efficient instruments. Life itself might be the best example. Organisms are pockets of local order, but they consume energy and radiate heat, increasing the total entropy of the universe more efficiently than if that energy had simply sat undisturbed.</p>
+        </div>
+        <button class="read-more" onclick="toggleSection('entropy-more', this)">+ read more</button>
+    </section>
+
+    <!-- QUOTE 4 -->
+    <div class="quote-block fade-in">
+        <blockquote>
+            Life is not order resisting chaos.<br>
+            Life <span class="accent">is</span> the chaos.
+        </blockquote>
+    </div>
+
+    <!-- ESSAY: MOVEMENT IS LIFE -->
+    <section class="essay-section fade-in">
+        <h2>Movement Is Life. Stillness Is Death.</h2>
+        <p>A living organism takes in energy, processes it, transforms it, releases it. It moves. It changes. It adapts. The moment that process stops &mdash; the moment energy ceases to flow through a system &mdash; we call it death. Not metaphorically. Literally.</p>
+        <p>This reframes everything. Life is not order resisting chaos. Life <em>is</em> the chaos &mdash; the movement, the transformation, the beautiful, turbulent flow of energy through organized systems. The organization matters, but only because it keeps the flow going. A river needs a riverbed, but the riverbed isn't the river. The water is.</p>
+    </section>
+
+    <!-- FINAL QUOTE -->
+    <div class="quote-block fade-in">
+        <blockquote>
+            The entropy was always coming.<br>
+            We are just the most elaborate mechanism<br>
+            it has ever found to <span class="accent">get there</span>.
+        </blockquote>
+    </div>
+
+    <!-- LINKS -->
+    <section class="links-section fade-in">
+        <h2>Connect</h2>
+        <div class="links">
+            <a href="https://github.com/YOUR_USERNAME" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                GitHub
+            </a>
+            <a href="https://suno.com/YOUR_PROFILE" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                Suno
+            </a>
+            <a href="https://instagram.com/YOUR_USERNAME" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                Instagram
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        AI Chaos &mdash; 2026
+    </footer>
+
+    <script>
+        // ---- Particle background ----
+        const canvas = document.getElementById('bg');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const particles = [];
+        const count = 80;
+
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 2 + 0.5,
+            });
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(170, 0, 255, 0.6)';
+                ctx.fill();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const q = particles[j];
+                    const dx = p.x - q.x;
+                    const dy = p.y - q.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(q.x, q.y);
+                        ctx.strokeStyle = `rgba(170, 0, 255, ${0.15 * (1 - dist / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+
+        // ---- Scroll fade-in ----
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // ---- Read more toggle ----
+        function toggleSection(id, btn) {
+            const el = document.getElementById(id);
+            el.classList.toggle('show');
+            btn.textContent = el.classList.contains('show') ? '- collapse' : '+ read more';
+        }
+
+        // ---- Video playlist ----
+        const playlist = [
+            "Video_Generation_Complete.mp4",
+            "Video_Generation_Complete (1).mp4",
+            "Video_Generation_Complete (2).mp4",
+            "Video_Generation_Complete (3).mp4",
+            "Video_Generation_Complete (3) 2.mp4",
+            "Video_Generation_Complete (4).mp4",
+            "Video_Generation_Complete (4) 2.mp4",
+            "Video_Generation_Complete (5).mp4",
+            "Video_Generation_Complete (6).mp4",
+            "Video_Generation_Complete (7).mp4",
+            "Video_Generation_Complete (8).mp4",
+            "Video_Generation_Complete (9).mp4",
+            "Video_Generation_Complete (10).mp4",
+            "Video_Generation_Complete (11).mp4",
+            "Video_Generation_Complete (12).mp4",
+            "Video_Generation_Complete (13).mp4",
+            "Video_Generation_and_Delivery.mp4",
+            "Video_Generation_Request_Fulfilled.mp4",
+            "Video_Generation_Successful.mp4",
+            "Video_Generation_Successful (2).mp4",
+            "Video_Generation_Successful (2) 2.mp4",
+            "AI_Robot_Transformation_and_Matrix_Break (2).mp4",
+            "AI_Robot_Transformation_and_Matrix_Break (3).mp4",
+            "Breaking_Through_The_Matrix_Video.mp4",
+        ];
+
+        let currentIndex = 0;
+        const mainVideo = document.getElementById('mainVideo');
+        const nowPlaying = document.getElementById('nowPlaying');
+        const gridEl = document.getElementById('playlist');
+
+        // Build thumbnail grid
+        playlist.forEach((src, i) => {
+            const card = document.createElement('div');
+            card.className = 'video-card' + (i === 0 ? ' active' : '');
+            card.innerHTML = `<span class="card-number">${i + 1}</span><video class="thumb" preload="metadata" src="${src}" muted></video>`;
+            card.addEventListener('click', () => playIndex(i));
+            gridEl.appendChild(card);
+        });
+
+        function playIndex(i) {
+            currentIndex = i;
+            mainVideo.src = playlist[i];
+            mainVideo.play();
+            nowPlaying.textContent = `${i + 1} / ${playlist.length}`;
+
+            document.querySelectorAll('.video-card').forEach((c, j) => {
+                c.classList.toggle('active', j === i);
+            });
+        }
+
+        function playNext() {
+            playIndex((currentIndex + 1) % playlist.length);
+        }
+
+        function playPrev() {
+            playIndex((currentIndex - 1 + playlist.length) % playlist.length);
+        }
+
+        // Auto-advance when a video ends
+        mainVideo.addEventListener('ended', playNext);
+
+        // Load first video
+        mainVideo.src = playlist[0];
+        mainVideo.preload = 'metadata';
+    </script>
+</body>
+</html>
